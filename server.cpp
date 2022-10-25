@@ -1,19 +1,18 @@
 #include <iostream>
 #include "fstream"
 #include <filesystem>
-#include <string>
 
 using namespace std;
 
-struct Students {
-    char name[25];
-    int grades[4];
-    int salary;
-    string client_name;
+struct Student {
+    char name[25]{};
+    int grades[4]{};
+    int answer{};
+    string client_name{};
 };
 int answer;
 
-int min_grade(int grades[4]) {
+int min(int grades[4]) {
     int res = 5;
     for (auto i = 0; i < 4; i++) {
         res = res > grades[i] ? grades[i] : res;
@@ -22,42 +21,42 @@ int min_grade(int grades[4]) {
 }
 
 int get_answer(int grades[4]) {
-    switch (min_grade(grades)) {
-        case 2:
-            return -1;
-        case 3:
-            return 0;
-        case 4:
-            return 1800;
-        default:
-            return 2500;
+    switch (min(grades)) {
+    case 2:
+        return -1;
+    case 3:
+        return 0;
+    case 4:
+        return 1800;
+    default:
+        return 2500;
     }
 }
 
-void answering(const string &file, int c){
-    Students student;
-    while(true){
-        ifstream in(file,ios::binary);
-        in.seekg(c);
+void answering(const string& file, int point) {
+    Student student{};
+    while (true) {
+        ifstream in(file, ios::binary);
+        in.seekg(point);
         in.read((char*)&student, sizeof(student));
-        if(c<in.tellg()){
+        if (point < in.tellg()) {
             answer = get_answer(student.grades);
-            cout<<"Name: "<<student.name<<"\n Answer: "<<answer<<endl;
-            ofstream out("../second scenery/" +student.client_name+".c", ios::binary | ios::app);
-           out.write((char*)&answer, sizeof(answer));
-           out.close();
-           c += sizeof(student);
+            cout << "Name: " << student.name << "\nSalary: " << answer << "\n";
+            ofstream out("../clients/" + student.client_name + ".client", ios::binary | ios::app);
+            out.write((char*)&answer, sizeof(answer));
+            out.close();
+            point += sizeof(student);
         }
         in.close();
     }
 }
 
-int main(){
-    cout<<"server is working \n";
-    string file = "../second scenery/server.sv";
+int main() {
+    string file = "../server.sv";
+    cout << "Starting server \n";
     ifstream in(file, ios::binary);
-    in.seekg(0,ios::end);
-    int position  = in.tellg();
+    in.seekg(0, ios::end);
+    int position = in.tellg();
     in.close();
     answering(file, position);
     return 0;
